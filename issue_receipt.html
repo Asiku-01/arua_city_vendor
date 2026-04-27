@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+{% block title %}Issue Receipt{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h2>Issue receipt</h2>
+</div>
+
+<div class="receipt-layout">
+  <!-- Form side -->
+  <div class="card form-card">
+    <div class="card-header"><span>Receipt details</span></div>
+    <form method="POST" action="{{ url_for('issue_receipt') }}" id="receipt-form">
+
+      <div class="form-group">
+        <label for="vendor_id">Vendor <span class="required">*</span></label>
+        <select id="vendor_id" name="vendor_id" required onchange="updatePreview()">
+          <option value="">— select vendor —</option>
+          {% for v in vendors %}
+          <option value="{{ v.id }}"
+            data-name="{{ v.full_name }}"
+            data-vid="{{ v.vendor_id }}"
+            {% if request.args.get('vendor_id')|int == v.id %}selected{% endif %}>
+            {{ v.full_name }} ({{ v.vendor_id }})
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="fee_type">Fee type <span class="required">*</span></label>
+        <select id="fee_type" name="fee_type" onchange="updatePreview()">
+          <option>Daily pitch fee</option>
+          <option>Weekly permit</option>
+          <option>Monthly permit</option>
+          <option>Annual permit</option>
+          <option>Penalty fee</option>
+          <option>Other</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="amount">Amount (UGX) <span class="required">*</span></label>
+        <input type="number" id="amount" name="amount" value="12000" min="0" required oninput="updatePreview()">
+      </div>
+
+      <div class="form-group">
+        <label for="notes">Notes (optional)</label>
+        <textarea id="notes" name="notes" rows="2" placeholder="Stall #, notes…" oninput="updatePreview()"></textarea>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn-primary">
+          <i class="fa-solid fa-receipt"></i> Issue receipt
+        </button>
+        <button type="button" class="btn-ghost" onclick="window.print()">
+          <i class="fa-solid fa-print"></i> Print
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Live receipt preview -->
+  <div class="receipt-preview" id="receipt-preview">
+    <div class="receipt-paper">
+      <div class="rp-org">Arua City Council</div>
+      <div class="rp-sub">Arua, Uganda</div>
+      <div class="rp-divider"></div>
+      <div class="rp-row"><span>Receipt no.</span><code id="rp-no">RCP-XXXX</code></div>
+      <div class="rp-row"><span>Date</span><span id="rp-date">—</span></div>
+      <div class="rp-row"><span>Time</span><span id="rp-time">—</span></div>
+      <div class="rp-divider dashed"></div>
+      <div class="rp-row"><span>Vendor</span><span id="rp-vendor">—</span></div>
+      <div class="rp-row"><span>ID</span><code id="rp-vid">—</code></div>
+      <div class="rp-row"><span>Fee type</span><span id="rp-type">Daily pitch fee</span></div>
+      <div class="rp-row"><span>Notes</span><span id="rp-notes">—</span></div>
+      <div class="rp-divider dashed"></div>
+      <div class="rp-total"><span>TOTAL</span><span id="rp-amount">UGX 12,000</span></div>
+      <div class="rp-divider"></div>
+      <div class="rp-footer">
+        <div>Issued by: Officer</div>
+        <div class="rp-barcode">| | | | | | | | | | | |</div>
+        <div>scan to verify</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Recent receipts -->
+<div class="card" style="margin-top:20px;">
+  <div class="card-header">
+    <span>Recent receipts</span>
+    <a href="{{ url_for('receipts') }}" class="card-link">View all →</a>
+  </div>
+  <table class="data-table">
+    <thead><tr><th>Receipt #</th><th>Vendor</th><th>Fee type</th><th>Amount</th><th>Date</th><th>Status</th></tr></thead>
+    <tbody>
+      {% set recent = [] %}
+      {% for v in vendors %}
+        {% for r in v.receipts %}
+          {% if recent|length < 5 %}
+            {% set _ = recent.append(r) %}
+          {% endif %}
+        {% endfor %}
+      {% endfor %}
+      {% set sorted_recent = recent | sort(attribute='id', reverse=True) | list %}
+      {% for r in sorted_recent %}
+      <tr>
+        <td><a href="{{ url_for('receipt_detail', receipt_id=r.id) }}"><code>{{ r.receipt_no }}</code></a></td>
+        <td>{{ r.vendor_ref.full_name }}</td>
+        <td>{{ r.fee_type }}</td>
+        <td>UGX {{ "{:,.0f}".format(r.amount) }}</td>
+        <td>{{ r.date_issued[:10] }}</td>
+        <td><span class="badge badge-{{ 'success' if r.status=='Paid' else 'danger' }}">{{ r.status }}</span></td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6" class="empty">No receipts yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function updatePreview() {
+  const sel    = document.getElementById('vendor_id');
+  const opt    = sel.options[sel.selectedIndex];
+  const name   = opt.dataset.name  || '—';
+  const vid    = opt.dataset.vid   || '—';
+  const amount = parseInt(document.getElementById('amount').value) || 0;
+  const type   = document.getElementById('fee_type').value;
+  const notes  = document.getElementById('notes').value || '—';
+  const now    = new Date();
+
+  document.getElementById('rp-vendor').textContent = name;
+  document.getElementById('rp-vid').textContent    = vid;
+  document.getElementById('rp-type').textContent   = type;
+  document.getElementById('rp-notes').textContent  = notes;
+  document.getElementById('rp-amount').textContent = 'UGX ' + amount.toLocaleString();
+  document.getElementById('rp-date').textContent   = now.toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'});
+  document.getElementById('rp-time').textContent   = now.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+}
+updatePreview();
+</script>
+{% endblock %}

@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block title %}All Receipts{% endblock %}
+
+{% block content %}
+<div class="page-header" style="display: flex; align-items: center; gap: 15px;">
+  <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" style="width: 50px; height: 50px; object-fit: contain;">
+  <h2 style="margin: 0;">All receipts</h2>
+  <div style="display:flex;gap:8px;">
+    <a href="{{ url_for('export_receipts') }}" class="btn-secondary">
+      <i class="fa-solid fa-file-excel"></i> Export Excel
+    </a>
+    <a href="{{ url_for('issue_receipt') }}" class="btn-primary">
+      <i class="fa-solid fa-plus"></i> Issue new
+    </a>
+  </div>
+</div>
+
+<!-- Search & filter bar -->
+<form method="GET" class="search-bar" style="flex-wrap: wrap;">
+  <input type="text" name="search" placeholder="Search receipt #, name, ID…" value="{{ search }}" style="min-width: 200px;">
+  
+  <select name="fee_type">
+    <option value="">All fee types</option>
+    {% for ft in fee_types %}
+    <option value="{{ ft }}" {% if fee_type == ft %}selected{% endif %}>{{ ft }}</option>
+    {% endfor %}
+  </select>
+
+  <div style="display: flex; align-items: center; gap: 4px;">
+    <span style="font-size: 12px; color: #6b7280;">From:</span>
+    <input type="date" name="date_from" value="{{ date_from }}">
+  </div>
+  
+  <div style="display: flex; align-items: center; gap: 4px;">
+    <span style="font-size: 12px; color: #6b7280;">To:</span>
+    <input type="date" name="date_to" value="{{ date_to }}">
+  </div>
+
+  <button type="submit" class="btn-secondary"><i class="fa-solid fa-magnifying-glass"></i> Filter</button>
+  {% if search or fee_type or date_from or date_to %}
+  <a href="{{ url_for('receipts') }}" class="btn-ghost">Clear</a>
+  {% endif %}
+</form>
+
+<div class="card">
+  <div class="card-header"><span>{{ receipts|length }} receipt(s)</span></div>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Receipt #</th><th>Vendor</th><th>Fee type</th>
+        <th>Amount</th><th>Date</th><th>Issued by</th><th>Status</th><th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in receipts %}
+      <tr>
+        <td><code>{{ r.receipt_no }}</code></td>
+        <td>{{ r.vendor_ref.full_name if r.vendor_ref else '—' }}</td>
+        <td>{{ r.fee_type }}</td>
+        <td>UGX {{ "{:,.0f}".format(r.amount) }}</td>
+        <td>{{ r.date_issued[:10] }}</td>
+        <td>{{ r.issued_by }}</td>
+        <td>
+          <span class="badge badge-{{ 'success' if r.status=='Paid' else 'danger' }}">{{ r.status }}</span>
+          {% if r.is_verified %}
+          <span class="badge" style="background:#e0f2f1; color:#00695c;"><i class="fa-solid fa-check-double"></i> Verified</span>
+          {% endif %}
+        </td>
+        <td style="white-space: nowrap; display:flex; gap:5px;">
+          <a href="{{ url_for('receipt_detail', receipt_id=r.id) }}" class="btn-sm">View</a>
+          {% if current_user.role in ['admin', 'finance_officer'] and not r.is_verified %}
+          <form action="{{ url_for('verify_receipt_finance', receipt_id=r.id) }}" method="POST" style="display:inline;">
+            <button type="submit" class="btn-sm" style="background:#00695c; color:white; border:none; cursor:pointer;" title="Verify Transaction">Verify</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="8" class="empty">No receipts yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

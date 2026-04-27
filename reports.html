@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+{% block title %}Analytics Reports{% endblock %}
+
+{% block content %}
+<div class="page-header" style="display: flex; align-items: center; gap: 15px;">
+  <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" style="width: 50px; height: 50px; object-fit: contain;">
+  <h2 style="margin: 0;">Analytics & Reports</h2>
+</div>
+
+<div class="metrics-grid">
+  <div class="metric-card">
+    <div class="metric-icon green"><i class="fa-solid fa-calendar-day"></i></div>
+    <div>
+      <div class="metric-value">UGX {{ "{:,.0f}".format(stats.today_total) }}</div>
+      <div class="metric-label">Today's Revenue</div>
+    </div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-icon blue"><i class="fa-solid fa-calendar-week"></i></div>
+    <div>
+      <div class="metric-value">UGX {{ "{:,.0f}".format(stats.week_total) }}</div>
+      <div class="metric-label">Weekly Total</div>
+    </div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-icon purple"><i class="fa-solid fa-user-check"></i></div>
+    <div>
+      <div class="metric-value">{{ stats.paid_today_count }}</div>
+      <div class="metric-label">Vendors Paid Today</div>
+    </div>
+  </div>
+</div>
+
+<div class="grid grid-cols-2 mt-6">
+  <div class="card">
+    <div class="card-header"><span>7-Day Revenue Trend</span></div>
+    <div class="card-body">
+      <canvas id="revenueChart" height="250"></canvas>
+    </div>
+  </div>
+  
+  <div class="card">
+    <div class="card-header"><span>Top Paying Vendors (All Time)</span></div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Vendor</th>
+          <th class="text-right">Total Paid (UGX)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for name, total in top_vendors %}
+        <tr>
+          <td><strong>{{ name }}</strong></td>
+          <td class="text-right">{{ "{:,.0f}".format(total) }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="card mt-6">
+  <div class="card-header"><span>Revenue by Street / Zone</span></div>
+  <div class="grid grid-cols-2">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Street / zone</th>
+          <th class="text-right">Total Revenue (UGX)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for street, total in street_revenue %}
+        <tr>
+          <td>{{ street }}</td>
+          <td class="text-right">{{ "{:,.0f}".format(total) }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div class="p-4">
+      <canvas id="streetChart" height="250"></canvas>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+<script id="daily-labels" type="application/json">{{ daily_labels | tojson | safe }}</script>
+<script id="daily-values" type="application/json">{{ daily_values | tojson | safe }}</script>
+<script id="street-labels" type="application/json">[{% for s, t in street_revenue %}"{{ s }}"{% if not loop.last %},{% endif %}{% endfor %}]</script>
+<script id="street-values" type="application/json">[{% for s, t in street_revenue %}{{ t }}{% if not loop.last %},{% endif %}{% endfor %}]</script>
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+  (function() {
+    // Revenue Chart
+    const dailyLabels = JSON.parse(document.getElementById('daily-labels').textContent);
+    const dailyValues = JSON.parse(document.getElementById('daily-values').textContent);
+    const revCtx = document.getElementById('revenueChart');
+    if (revCtx) {
+      new Chart(revCtx, {
+        type: 'line',
+        data: {
+          labels: dailyLabels,
+          datasets: [{
+            label: 'Revenue (UGX)',
+            data: dailyValues,
+            borderColor: '#2563eb',
+            backgroundColor: 'rgba(37, 99, 235, 0.1)',
+            fill: true,
+            tension: 0.4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true } }
+        }
+      });
+    }
+
+    // Street Chart
+    const streetLabels = JSON.parse(document.getElementById('street-labels').textContent);
+    const streetValues = JSON.parse(document.getElementById('street-values').textContent);
+    const streetCtx = document.getElementById('streetChart');
+    if (streetCtx) {
+      new Chart(streetCtx, {
+        type: 'doughnut',
+        data: {
+          labels: streetLabels,
+          datasets: [{
+            data: streetValues,
+            backgroundColor: ['#2563eb', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#ec4899']
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'right' } }
+        }
+      });
+    }
+  })();
+</script>
+{% endblock %}

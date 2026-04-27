@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block title %}Vendor Registry{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h2>Vendor Registry</h2>
+  <div style="display:flex;gap:8px;">
+    <a href="{{ url_for('export_vendors') }}" class="btn-secondary">
+      <i class="fa-solid fa-file-excel"></i> Export Excel
+    </a>
+    <a href="{{ url_for('register_vendor') }}" class="btn-primary">
+      <i class="fa-solid fa-user-plus"></i> Register vendor
+    </a>
+  </div>
+</div>
+
+<!-- Search & filter bar -->
+<form method="GET" class="search-bar">
+  <input type="text" name="search" placeholder="Search name, ID or street…" value="{{ search }}">
+  <select name="status">
+    <option value="">All statuses</option>
+    <option value="Active"  {% if status=='Active'  %}selected{% endif %}>Active</option>
+    <option value="NotPaid" {% if status=='NotPaid' %}selected{% endif %}>NotPaid</option>
+    <option value="Pending" {% if status=='Pending' %}selected{% endif %}>Pending</option>
+    <option value="Expired" {% if status=='Expired' %}selected{% endif %}>Expired</option>
+  </select>
+  <button type="submit" class="btn-secondary"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+  {% if search or status %}
+  <a href="{{ url_for('vendors') }}" class="btn-ghost">Clear</a>
+  {% endif %}
+</form>
+
+<div class="card">
+  <div class="card-header">
+    <span>{{ vendors|length }} vendor(s) found</span>
+  </div>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Vendor ID</th>
+        <th>Name</th>
+        <th>Street / zone</th>
+        <th>Trade type</th>
+        <th>Phone</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for v in vendors %}
+      <tr>
+        <td><code>{{ v.vendor_id }}</code></td>
+        <td><strong>{{ v.full_name }}</strong></td>
+        <td>{{ v.street_ref.name if v.street_ref else v.street }}</td>
+        <td>{{ v.trade_type }}</td>
+        <td>{{ v.phone }}</td>
+        <td>
+          <span class="badge badge-{{ 'success' if v.status=='Active' else 'danger' if v.status in ['Expired', 'NotPaid'] else 'warn' }}">
+            {{ v.status }}
+          </span>
+        </td>
+        <td>
+          <a href="{{ url_for('vendor_detail', vendor_id=v.id) }}" class="btn-sm">View</a>
+          <a href="{{ url_for('fee_tracker') }}?search={{ v.vendor_id }}" class="btn-sm">Tracker</a>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="7" class="empty">No vendors found. <a href="{{ url_for('register_vendor') }}">Register one?</a></td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

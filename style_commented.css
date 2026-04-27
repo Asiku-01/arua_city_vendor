@@ -1,0 +1,1220 @@
+/* ========================================================================
+   VENDOR MANAGEMENT SYSTEM - MAIN STYLESHEET
+   ======================================================================== 
+   
+   Purpose: Style the entire web application (colors, layout, fonts)
+   Approach: Simple, clean CSS without frameworks like Bootstrap
+   
+   Key sections:
+   1. RESET & BASE - Default styling for all elements
+   2. LAYOUT - Sidebar + main content area
+   3. COMPONENTS - Cards, buttons, forms, tables, badges
+   4. RESPONSIVE - Mobile-friendly adjustments
+   
+   ======================================================================== */
+
+/* ── RESET: Remove browser default styles ──────────────────────────── */
+
+/* Apply to ALL elements (* means everything) */
+*, *::before, *::after {
+  /* box-sizing: border-box prevents padding from expanding elements */
+  box-sizing: border-box;
+  
+  /* Remove default margins (space around elements) */
+  margin: 0;
+  
+  /* Remove default padding (space inside elements) */
+  padding: 0;
+}
+
+/* ── BASE STYLES: Default for entire page ──────────────────────────── */
+
+body {
+  /* Font family: use modern system fonts, fall back to sans-serif */
+  /* 'Segoe UI' = Windows
+     'system-ui' = system default
+     sans-serif = generic fallback (no serifs) */
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  
+  /* Default text size for entire page */
+  font-size: 14px;
+  
+  /* Default text color: dark gray (not pure black for easier reading) */
+  color: #1a1a2e;
+  
+  /* Background color: light gray-blue (not white, softer on eyes) */
+  background: #f4f6fb;
+  
+  /* min-height: 100vh ensures page is at least full screen height
+     100vh = 100% of viewport height (screen height) */
+  min-height: 100vh;
+}
+
+/* ── LINKS: Style for <a> tags ────────────────────────────────────── */
+
+a {
+  /* Link color: blue */
+  color: #2563eb;
+  
+  /* Remove underline from links (we'll add it on hover) */
+  text-decoration: none;
+}
+
+/* Hover state: when user mouses over a link */
+a:hover {
+  /* Add underline on hover to indicate it's clickable */
+  text-decoration: underline;
+}
+
+/* ── CODE: Style for <code> tags (monospace text) ─────────────────── */
+
+code {
+  /* Use monospace font: characters all same width */
+  font-family: 'Courier New', monospace;
+  
+  /* Make code text smaller than normal text */
+  font-size: 12px;
+  
+  /* Light blue background to distinguish from normal text */
+  background: #eef2ff;
+  
+  /* Add padding around code (space inside) */
+  padding: 2px 6px;
+  
+  /* Rounded corners for modern look */
+  border-radius: 4px;
+  
+  /* Dark blue text color for code */
+  color: #3730a3;
+}
+
+/* ════════════════════════════════════════════════════════════════════ */
+/* LAYOUT: Sidebar + Main content area structure */
+/* ════════════════════════════════════════════════════════════════════ */
+
+/* .sidebar - left navigation menu (always visible) */
+.sidebar {
+  /* position: fixed = stays in place when user scrolls */
+  position: fixed;
+  
+  /* top: 0, left: 0 = position at top-left corner of screen */
+  top: 0;
+  left: 0;
+  
+  /* Size: 220px wide, full screen height */
+  width: 220px;
+  height: 100vh;
+  
+  /* Dark blue background for sidebar */
+  background: #1a1a2e;
+  
+  /* Flex layout: arrange items vertically */
+  display: flex;
+  flex-direction: column;
+  
+  /* Padding: add space inside (top/right/bottom/left) */
+  padding: 0;
+  
+  /* z-index: layer order (higher = on top) */
+  /* 100 = sidebar is on top of everything */
+  z-index: 100;
+}
+
+/* .main-content - the page content area (right side) */
+.main-content {
+  /* margin-left: 220px shifts content to right (so sidebar doesn't cover it) */
+  margin-left: 220px;
+  
+  /* padding: space inside the main content area */
+  padding: 24px 28px;
+  
+  /* min-height: 100vh ensures content area is at least full screen */
+  min-height: 100vh;
+}
+
+/* ────────────────────────────────────────────────────────────────── */
+/* SIDEBAR COMPONENTS */
+/* ────────────────────────────────────────────────────────────────── */
+
+/* .sidebar-brand - logo/title at top of sidebar */
+.sidebar-brand {
+  /* Flex layout: arrange items horizontally (left to right) */
+  display: flex;
+  align-items: center;  /* Vertically center items */
+  gap: 10px;  /* Space between logo icon and text */
+  
+  /* Padding: add space inside */
+  padding: 20px 20px 16px;
+  
+  /* Font size and weight: make title visible */
+  font-size: 16px;
+  font-weight: 700;  /* 700 = bold */
+  
+  /* White text for dark blue background */
+  color: #fff;
+  
+  /* Border at bottom: light line to separate from menu */
+  border-bottom: 1px solid rgba(255, 255, 255, .1);
+  /* rgba(255,255,255,.1) = white with 10% opacity (very light) */
+}
+
+/* .sidebar-brand i - icon element (from Font Awesome) */
+.sidebar-brand i {
+  /* Blue color for icon */
+  color: #60a5fa;
+  
+  /* Make icon bigger */
+  font-size: 20px;
+}
+
+/* .sidebar-nav - the menu list */
+.sidebar-nav {
+  /* flex: 1 = take up all remaining vertical space */
+  flex: 1;
+  
+  /* Padding: add space around menu items */
+  padding: 12px 12px;
+  
+  /* Flex layout: stack items vertically */
+  display: flex;
+  flex-direction: column;
+  
+  /* Gap: space between each menu item */
+  gap: 4px;
+}
+
+/* .nav-link - individual menu items */
+.nav-link {
+  /* Flex layout: arrange icon and text horizontally */
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  
+  /* Padding: space inside the link */
+  padding: 10px 14px;
+  
+  /* Rounded corners: modern look */
+  border-radius: 8px;
+  
+  /* Light white text (70% opacity on dark background) */
+  color: rgba(255, 255, 255, .7);
+  
+  /* Regular text size */
+  font-size: 14px;
+  
+  /* transition: animate when properties change (smooth effect) */
+  transition: background .15s, color .15s;
+  
+  /* Cursor should show hand pointer (clickable) */
+  cursor: pointer;
+}
+
+/* Icon inside navigation link */
+.nav-link i {
+  /* Fixed width: icons all same size */
+  width: 18px;
+  
+  /* Center icon horizontally */
+  text-align: center;
+}
+
+/* Hover effect: when user mouses over a menu item */
+.nav-link:hover {
+  /* Light background: subtle highlight */
+  background: rgba(255, 255, 255, .08);
+  
+  /* Brighter text color */
+  color: #fff;
+  
+  /* Remove underline (no text-decoration) */
+  text-decoration: none;
+}
+
+/* Active state: when menu item is current page */
+.nav-link.active {
+  /* Blue background: clearly show active page */
+  background: #2563eb;
+  
+  /* White text: high contrast */
+  color: #fff;
+}
+
+/* .sidebar-footer - user info at bottom of sidebar */
+.sidebar-footer {
+  /* Padding: space around content */
+  padding: 14px 20px;
+  
+  /* Border at top: separate from menu */
+  border-top: 1px solid rgba(255, 255, 255, .1);
+  
+  /* Flex layout: arrange items horizontally */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  
+  /* Muted text color */
+  color: rgba(255, 255, 255, .6);
+  
+  /* Small text size */
+  font-size: 13px;
+}
+
+/* Logout link (inside footer) */
+.logout-link {
+  /* Muted color */
+  color: rgba(255, 255, 255, .5);
+  
+  /* Larger size for icon */
+  font-size: 16px;
+}
+
+/* Logout link on hover */
+.logout-link:hover {
+  /* Bright white on hover */
+  color: #fff;
+}
+
+/* ════════════════════════════════════════════════════════════════════ */
+/* PAGE HEADER: Title and buttons at top of page */
+/* ════════════════════════════════════════════════════════════════════ */
+
+.page-header {
+  /* Flex layout: arrange title and buttons horizontally */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;  /* Space between left and right */
+  
+  /* Space below header */
+  margin-bottom: 20px;
+}
+
+.page-header h2 {
+  /* Large title font */
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.header-actions {
+  /* Flex layout: arrange buttons horizontally */
+  display: flex;
+  
+  /* Space between buttons */
+  gap: 8px;
+}
+
+/* Back link (← Vendors) */
+.back-link {
+  /* Muted color */
+  color: #6b7280;
+  
+  /* Smaller font */
+  font-size: 14px;
+  
+  /* Normal weight (not bold) */
+  font-weight: 400;
+  
+  /* Space before text */
+  margin-right: 8px;
+}
+
+/* Date/label text at top right */
+.date-label {
+  /* Smaller, muted text */
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* ════════════════════════════════════════════════════════════════════ */
+/* CARDS: White boxes containing content */
+/* ════════════════════════════════════════════════════════════════════ */
+
+.card {
+  /* White background: stand out from page background */
+  background: #fff;
+  
+  /* Rounded corners: modern look */
+  border-radius: 12px;
+  
+  /* Space below card */
+  margin-bottom: 16px;
+  
+  /* Subtle gray border */
+  border: 1px solid #e5e7eb;
+  
+  /* Hide overflow: keep content inside rounded corners */
+  overflow: hidden;
+}
+
+/* Card header: title bar at top of card */
+.card-header {
+  /* Padding: space inside header */
+  padding: 12px 18px;
+  
+  /* Bottom border to separate from content */
+  border-bottom: 1px solid #f0f0f0;
+  
+  /* Flex layout: arrange title and links */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  
+  /* Bold text */
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* Link inside card header (e.g., "View all →") */
+.card-link {
+  /* Small blue text */
+  font-size: 13px;
+  font-weight: 400;
+  color: #2563eb;
+}
+
+/* ────────────────────────────────────────────────────────────────── */
+/* METRIC CARDS: Show statistics (numbers) */
+/* ────────────────────────────────────────────────────────────────── */
+
+.metrics-grid {
+  /* Grid layout: arrange in 4 columns */
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  
+  /* Space between cards */
+  gap: 14px;
+  
+  /* Space below grid */
+  margin-bottom: 20px;
+}
+
+.metric-card {
+  /* White background */
+  background: #fff;
+  
+  /* Rounded corners */
+  border-radius: 12px;
+  
+  /* Subtle border */
+  border: 1px solid #e5e7eb;
+  
+  /* Padding inside card */
+  padding: 16px 18px;
+  
+  /* Flex layout: arrange icon and text horizontally */
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.metric-icon {
+  /* Size: 44x44 pixels square */
+  width: 44px;
+  height: 44px;
+  
+  /* Rounded corners: make it circular */
+  border-radius: 10px;
+  
+  /* Flex layout: center icon inside */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  /* Icon size */
+  font-size: 20px;
+  
+  /* Don't shrink icon */
+  flex-shrink: 0;
+  
+  /* Weight for bold icons */
+  font-weight: 500;
+}
+
+/* Color variations for different metric icons */
+.metric-icon.blue { background: #eff6ff; color: #2563eb; }
+.metric-icon.green { background: #f0fdf4; color: #16a34a; }
+.metric-icon.orange { background: #fff7ed; color: #ea580c; }
+.metric-icon.purple { background: #f5f3ff; color: #7c3aed; }
+
+.metric-value {
+  /* Large number size */
+  font-size: 20px;
+  font-weight: 700;
+  
+  /* Tight line height */
+  line-height: 1.2;
+}
+
+.metric-label {
+  /* Small label text */
+  font-size: 12px;
+  color: #6b7280;
+  
+  /* Space above label */
+  margin-top: 2px;
+}
+
+/* ────────────────────────────────────────────────────────────────── */
+/* TWO-COLUMN LAYOUT */
+/* ────────────────────────────────────────────────────────────────── */
+
+.two-col {
+  /* Grid with 2 equal columns */
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  
+  /* Space between columns */
+  gap: 16px;
+}
+
+/* ════════════════════════════════════════════════════════════════════ */
+/* TABLES: Display data in rows and columns */
+/* ════════════════════════════════════════════════════════════════════ */
+
+.data-table {
+  /* Full width */
+  width: 100%;
+  
+  /* Collapse borders (no double borders) */
+  border-collapse: collapse;
+  
+  /* Small text size */
+  font-size: 13px;
+}
+
+/* Table header row */
+.data-table th {
+  /* Padding: space inside cells */
+  padding: 10px 16px;
+  
+  /* Left-align text */
+  text-align: left;
+  
+  /* Bold headings */
+  font-weight: 600;
+  
+  /* Smaller font for headers */
+  font-size: 12px;
+  
+  /* Muted color */
+  color: #6b7280;
+  
+  /* Light gray background */
+  background: #f9fafb;
+  
+  /* Border at bottom */
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* Table data cells */
+.data-table td {
+  /* Padding inside cells */
+  padding: 10px 16px;
+  
+  /* Border at bottom (between rows) */
+  border-bottom: 1px solid #f0f0f0;
+}
+
+/* Remove border from last row */
+.data-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* Hover effect: highlight row when user mouses over */
+.data-table tr:hover td {
+  /* Light gray background */
+  background: #f9fafb;
+  
+  /* Show hand cursor (clickable) */
+  cursor: pointer;
+}
+
+/* Empty state: when no data in table */
+.empty {
+  /* Muted text color */
+  color: #9ca3af;
+  
+  /* Center text */
+  text-align: center;
+  
+  /* Extra padding for visibility */
+  padding: 24px !important;
+}
+
+/* ════════════════════════════════════════════════════════════════════ */
+/* BADGES: Small colored labels (Active, Pending, Expired, Paid) */
+/* ════════════════════════════════════════════════════════════════════ */
+
+.badge {
+  /* Inline block: flow with text but accept padding */
+  display: inline-block;
+  
+  /* Padding: space inside badge */
+  padding: 3px 10px;
+  
+  /* Rounded corners: pill shape */
+  border-radius: 20px;
+  
+  /* Small text */
+  font-size: 11px;
+  
+  /* Bold text */
+  font-weight: 600;
+}
+
+/* Color variations for different statuses */
+
+/* Success: green background for "Active" */
+.badge-success {
+  background: #dcfce7;  /* Light green background */
+  color: #166534;       /* Dark green text */
+}
+
+/* Warning: yellow background for "Pending" */
+.badge-warn {
+  background: #fef9c3;
+  color: #854d0e;
+}
+
+/* Danger: red background for "Expired" or "Overdue" */
+.badge-danger {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* Info: blue background for general information */
+.badge-info {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+/* ════════════════════════════════════════════════════════════════════ */
+/* BUTTONS: Clickable elements */
+/* ════════════════════════════════════════════════════════════════════ */
+
+.btn-primary, .btn-secondary, .btn-ghost, .btn-sm {
+  /* Flex layout: arrange icon and text */
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  
+  /* Padding inside button */
+  padding: 8px 16px;
+  
+  /* Rounded corners */
+  border-radius: 8px;
+  
+  /* Text size */
+  font-size: 13px;
+  font-weight: 500;
+  
+  /* Pointer cursor: show it's clickable */
+  cursor: pointer;
+  
+  /* No border by default */
+  border: 1px solid transparent;
+  
+  /* Smooth transition when properties change */
+  transition: all .15s;
+  
+  /* Remove underline for links */
+  text-decoration: none;
+}
+
+/* Primary button: blue background (main action) */
+.btn-primary {
+  background: #2563eb;  /* Blue */
+  color: #fff;          /* White text */
+}
+
+.btn-primary:hover {
+  /* Darker blue on hover */
+  background: #1d4ed8;
+  /* Remove underline */
+  text-decoration: none;
+  color: #fff;
+}
+
+/* Secondary button: white with border (secondary action) */
+.btn-secondary {
+  background: #fff;
+  color: #374151;
+  border-color: #d1d5db;  /* Gray border */
+}
+
+.btn-secondary:hover {
+  /* Slightly gray background on hover */
+  background: #f9fafb;
+}
+
+/* Ghost button: transparent (less important action) */
+.btn-ghost {
+  background: transparent;
+  color: #374151;
+  border-color: #d1d5db;
+}
+
+.btn-ghost:hover {
+  background: #f3f4f6;
+}
+
+/* Small button: in tables/lists */
+.btn-sm {
+  padding: 4px 10px;
+  font-size: 12px;
+  background: #fff;
+  border-color: #d1d5db;
+  color: #374151;
+}
+
+.btn-sm:hover {
+  background: #f3f4f6;
+}
+
+/* Full-width button */
+.btn-full {
+  width: 100%;
+  justify-content: center;  /* Center content inside */
+}
+
+/* ════════════════════════════════════════════════════════════════════ */
+/* FORMS: Input fields and form controls */
+/* ════════════════════════════════════════════════════════════════════ */
+
+.form-card {
+  /* Remove padding (add inside form) */
+  padding: 0;
+}
+
+.form-card form {
+  /* Padding inside form */
+  padding: 20px;
+}
+
+/* Form grid: arrange form fields in 2 columns */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* Full-width form field */
+.form-full {
+  grid-column: 1 / -1;  /* Span both columns */
+}
+
+/* Individual form field container */
+.form-group {
+  /* Stack label and input vertically */
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.form-group label {
+  /* Smaller text for labels */
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+}
+
+/* Asterisk for required fields */
+.required {
+  color: #ef4444;  /* Red */
+}
+
+/* Input fields, select dropdowns, textareas */
+.form-group input,
+.form-group select,
+.form-group textarea {
+  /* Padding: space inside field */
+  padding: 9px 12px;
+  
+  /* Border: subtle gray */
+  border: 1px solid #d1d5db;
+  
+  /* Rounded corners */
+  border-radius: 8px;
+  
+  /* Text size */
+  font-size: 13px;
+  
+  /* Text color */
+  color: #1a1a2e;
+  
+  /* White background */
+  background: #fff;
+  
+  /* Smooth transition when focused */
+  transition: border-color .15s;
+}
+
+/* Focus state: when user clicks in field */
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  /* Remove default browser outline */
+  outline: none;
+  
+  /* Blue border to show field is active */
+  border-color: #2563eb;
+  
+  /* Blue glow effect */
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, .1);
+}
+
+/* Textarea: allow vertical resizing */
+.form-group textarea {
+  resize: vertical;
+  min-height: 70px;
+}
+
+/* Form action buttons (Submit, Cancel) */
+.form-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;  /* Align to right */
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
+}
+
+/* ────────────────────────────────────────────────────────────────── */
+/* SEARCH BAR */
+/* ────────────────────────────────────────────────────────────────── */
+
+.search-bar {
+  /* Horizontal flex layout */
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  align-items: center;
+}
+
+.search-bar input,
+.search-bar select {
+  /* Padding */
+  padding: 8px 12px;
+  
+  /* Border and radius */
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  
+  /* Text size */
+  font-size: 13px;
+  
+  /* White background */
+  background: #fff;
+}
+
+/* Search input takes remaining space */
+.search-bar input {
+  flex: 1;
+}
+
+/* ════════════════════════════════════════════════════════════════════ */
+/* FLASH MESSAGES: Success/error notifications */
+/* ════════════════════════════════════════════════════════════════════ */
+
+.flash-container {
+  /* Space below messages */
+  margin-bottom: 16px;
+}
+
+.alert {
+  /* Padding: space inside message */
+  padding: 12px 16px;
+  
+  /* Rounded corners */
+  border-radius: 8px;
+  
+  /* Space below message */
+  margin-bottom: 8px;
+  
+  /* Flex layout: arrange message and close button */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  
+  /* Text size */
+  font-size: 13px;
+}
+
+/* Close button inside alert */
+.alert button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: inherit;  /* Inherit color from parent */
+}
+
+/* Success message: green */
+.alert-success {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+/* Error message: red */
+.alert-danger {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+/* Info message: blue */
+.alert-info {
+  background: #dbeafe;
+  color: #1e40af;
+  border: 1px solid #bfdbfe;
+}
+
+/* Warning message: yellow */
+.alert-warning {
+  background: #fef9c3;
+  color: #854d0e;
+  border: 1px solid #fef08a;
+}
+
+/* ════════════════════════════════════════════════════════════════════ */
+/* LOGIN PAGE: Special styling for login screen */
+/* ════════════════════════════════════════════════════════════════════ */
+
+.login-page {
+  /* Full screen height */
+  min-height: 100vh;
+  
+  /* Flex layout: center content */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  /* Gradient background: dark blue to darker blue */
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+}
+
+.login-card {
+  /* White card */
+  background: #fff;
+  border-radius: 16px;
+  padding: 36px;
+  
+  /* Fixed width */
+  width: 360px;
+  
+  /* Drop shadow for depth */
+  box-shadow: 0 20px 60px rgba(0, 0, 0, .3);
+}
+
+.login-header {
+  /* Center content */
+  text-align: center;
+  
+  /* Space below header */
+  margin-bottom: 24px;
+}
+
+.login-icon {
+  /* Large icon */
+  font-size: 40px;
+  
+  /* Blue color */
+  color: #2563eb;
+  
+  /* Block element (takes full width) */
+  display: block;
+  
+  /* Space below icon */
+  margin-bottom: 12px;
+}
+
+.login-header h1 {
+  /* Title font */
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.login-header p {
+  /* Subtitle font */
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.login-hint {
+  /* Small gray text */
+  text-align: center;
+  font-size: 12px;
+  color: #9ca3af;
+  margin-top: 16px;
+}
+
+/* ════════════════════════════════════════════════════════════════════ */
+/* VENDOR PROFILE */
+/* ════════════════════════════════════════════════════════════════════ */
+
+.vendor-profile {
+  /* Padding */
+  padding: 20px;
+  
+  /* Center content */
+  text-align: center;
+  
+  /* Border at bottom */
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.vendor-avatar {
+  /* Square with rounded corners (circle) */
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  
+  /* Light blue background */
+  background: #eff6ff;
+  
+  /* Blue text color */
+  color: #2563eb;
+  
+  /* Large initials font */
+  font-size: 22px;
+  font-weight: 700;
+  
+  /* Center content inside */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  /* Center on page */
+  margin: 0 auto 10px;
+}
+
+.vendor-name {
+  /* Title font */
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.info-table {
+  /* Padding inside table */
+  padding: 4px 0;
+}
+
+.info-row {
+  /* Flex layout: label and value */
+  display: flex;
+  justify-content: space-between;
+  
+  /* Padding in each row */
+  padding: 9px 18px;
+  
+  /* Border between rows */
+  border-bottom: 1px solid #f9fafb;
+  
+  /* Text size */
+  font-size: 13px;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  /* Muted color for labels */
+  color: #6b7280;
+}
+
+/* ════════════════════════════════════════════════════════════════════ */
+/* RECEIPT: Receipt preview and printing */
+/* ════════════════════════════════════════════════════════════════════ */
+
+.receipt-layout {
+  /* Grid: form on left, preview on right */
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 20px;
+  align-items: start;
+}
+
+.receipt-center {
+  /* Center receipt on screen */
+  display: flex;
+  justify-content: center;
+}
+
+.receipt-preview {
+  /* Stick preview to top while scrolling */
+  position: sticky;
+  top: 20px;
+}
+
+/* Receipt paper: mimic actual receipt printout */
+.receipt-paper {
+  /* White background like paper */
+  background: #fff;
+  
+  /* Border: frame around receipt */
+  border: 1px solid #e5e7eb;
+  
+  /* Rounded corners */
+  border-radius: 12px;
+  
+  /* Padding: space inside */
+  padding: 24px 20px;
+  
+  /* Width: narrow like receipt paper */
+  width: 280px;
+  
+  /* Monospace font: like old printers */
+  font-family: 'Courier New', monospace;
+  
+  /* Smaller text size */
+  font-size: 13px;
+  
+  /* Shadow for depth */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, .06);
+}
+
+.receipt-paper.large {
+  width: 320px;
+  font-size: 14px;
+  padding: 28px 24px;
+}
+
+.rp-org {
+  /* Organization name at top */
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+  color: #1a1a2e;
+}
+
+.rp-sub {
+  /* Subtitle text */
+  font-size: 11px;
+  text-align: center;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+.rp-divider {
+  /* Divider line */
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 12px 0;
+}
+
+.rp-divider.dashed {
+  border-top-style: dashed;
+}
+
+.rp-row {
+  /* Label and value on same line */
+  display: flex;
+  justify-content: space-between;
+  padding: 3px 0;
+}
+
+.rp-row span:first-child {
+  /* Label color: muted */
+  color: #6b7280;
+}
+
+.rp-total {
+  /* Total row: bold and large */
+  display: flex;
+  justify-content: space-between;
+  font-weight: 700;
+  font-size: 15px;
+  padding: 6px 0;
+}
+
+.rp-footer {
+  /* Footer section */
+  text-align: center;
+  font-size: 11px;
+  color: #9ca3af;
+  margin-top: 12px;
+  border-top: 1px dashed #e5e7eb;
+  padding-top: 10px;
+}
+
+.rp-barcode {
+  /* ASCII barcode simulation */
+  font-size: 16px;
+  letter-spacing: 2px;
+  color: #374151;
+  margin: 6px 0;
+}
+
+/* ════════════════════════════════════════════════════════════════════ */
+/* PRINT STYLES: Optimize for printing (paper) */
+/* ════════════════════════════════════════════════════════════════════ */
+
+@media print {
+  /* Hide elements not needed when printing */
+  .sidebar, .page-header .btn-secondary, .nav-link {
+    display: none !important;
+  }
+  
+  /* Remove sidebar margin when printing full page */
+  .main-content {
+    margin-left: 0;
+    padding: 0;
+  }
+  
+  /* Remove box shadow from receipt (won't print) */
+  .receipt-paper {
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════════ */
+/* RESPONSIVE DESIGN: Mobile and tablet views */
+/* ════════════════════════════════════════════════════════════════════ */
+
+/* Tablets: max width 900px */
+@media (max-width: 900px) {
+  /* Metric cards: 2 columns instead of 4 */
+  .metrics-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  /* Two-column layout becomes single column */
+  .two-col {
+    grid-template-columns: 1fr;
+  }
+  
+  /* Receipt layout: vertical instead of side-by-side */
+  .receipt-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Mobile phones: max width 640px */
+@media (max-width: 640px) {
+  /* Sidebar: switch to horizontal top menu */
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;  /* Not fixed anymore */
+  }
+  
+  /* Remove sidebar margin */
+  .main-content {
+    margin-left: 0;
+    padding: 16px;  /* Smaller padding */
+  }
+  
+  /* Metrics: single column on mobile */
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  /* Forms: single column */
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% block title %}User Management{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h2>User Management</h2>
+  <span>Securely manage system access keys</span>
+</div>
+
+<div class="two-col">
+  <!-- Create New User -->
+  <div class="card">
+    <div class="card-header">
+      <span>Add New Account</span>
+    </div>
+    <form method="POST" action="{{ url_for('manage_users') }}" class="form-grid">
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" name="username" required>
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" name="email" required>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" name="password" required>
+      </div>
+      <div class="form-group">
+        <label>Role</label>
+        <select name="role" id="role-selector" required onchange="toggleVendorSelect()">
+          <option value="field_officer">Field Officer</option>
+          <option value="finance_officer">Finance Officer</option>
+          <option value="admin">Administrator</option>
+          <option value="vendor">Street Vendor</option>
+        </select>
+      </div>
+      <div class="form-group" id="vendor-select-group" style="display: none; grid-column: 1 / -1;">
+        <label>Link to Vendor Profile (Required for Vendor Role)</label>
+        <select name="vendor_id">
+          <option value="">-- Select Vendor --</option>
+          {% for v in vendors %}
+          <option value="{{ v.id }}">{{ v.vendor_id }} — {{ v.full_name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      
+      <div class="form-group" style="grid-column: 1 / -1; display: flex; justify-content: flex-end; margin-top: 10px;">
+        <button type="submit" class="btn-primary">Create User</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- User List -->
+  <div class="card">
+    <div class="card-header">
+      <span>Active Database Users</span>
+    </div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Username</th>
+          <th>Role</th>
+          <th>Vendor Link</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td><strong>{{ u.username }}</strong><br><small style="color: #666;">{{ u.email }}</small></td>
+          <td>
+            {% if u.role == 'admin' %}
+            <span class="badge badge-danger">Admin</span>
+            {% elif u.role == 'finance_officer' %}
+            <span class="badge badge-warn">Finance Officer</span>
+            {% elif u.role == 'vendor' %}
+            <span class="badge badge-success">Vendor</span>
+            {% else %}
+            <span class="badge badge-success" style="background:#555;">Field Officer</span>
+            {% endif %}
+          </td>
+          <td>{{ u.vendor_ptr if u.vendor_ptr else '—' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+function toggleVendorSelect() {
+  const roleVal = document.getElementById('role-selector').value;
+  const vendorGroup = document.getElementById('vendor-select-group');
+  if (roleVal === 'vendor') {
+    vendorGroup.style.display = 'block';
+  } else {
+    vendorGroup.style.display = 'none';
+  }
+}
+</script>
+{% endblock %}

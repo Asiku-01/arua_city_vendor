@@ -1,0 +1,227 @@
+{% extends 'base.html' %}
+<!-- dashboard.html: Main overview page for administrative roles -->
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h2>Dashboard</h2>
+  <!-- Current system date -->
+  <span class="date-label">{{ now.strftime('%A, %d %B %Y') if now else '' }}</span>
+</div>
+
+<!-- METRIC CARDS: Quick stats summaries -->
+<div class="metrics-grid">
+  <!-- Vendor Counts -->
+  <div class="metric-card">
+    <div class="metric-icon blue"><i class="fa-solid fa-users"></i></div>
+    <div>
+      <div class="metric-value">{{ total_vendors }}</div>
+      <div class="metric-label">Total vendors</div>
+    </div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-icon green"><i class="fa-solid fa-circle-check"></i></div>
+    <div>
+      <div class="metric-value">{{ active_vendors }}</div>
+      <div class="metric-label">Active vendors</div>
+    </div>
+  </div>
+  <!-- Daily Collection Compliance -->
+  <div class="metric-card">
+    <div class="metric-icon orange"><i class="fa-solid fa-circle-xmark"></i></div>
+    <div>
+      <div class="metric-value">{{ not_paid_count }}</div>
+      <div class="metric-label">Not paid today</div>
+    </div>
+  </div>
+  <!-- System Totals -->
+  <div class="metric-card">
+    <div class="metric-icon purple"><i class="fa-solid fa-receipt"></i></div>
+    <div>
+      <div class="metric-value">{{ total_receipts }}</div>
+      <div class="metric-label">Total receipts</div>
+    </div>
+  </div>
+</div>
+
+<!-- REVENUE METRICS: Financial performance -->
+<div class="metrics-grid">
+  <div class="metric-card">
+    <div class="metric-icon green"><i class="fa-solid fa-coins"></i></div>
+    <div>
+      <div class="metric-value">UGX {{ "{:,.0f}".format(today_revenue) }}</div>
+      <div class="metric-label">Today's revenue</div>
+    </div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-icon blue"><i class="fa-solid fa-calendar-week"></i></div>
+    <div>
+      <div class="metric-value">UGX {{ "{:,.0f}".format(weekly_revenue) }}</div>
+      <div class="metric-label">Weekly revenue</div>
+    </div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-icon purple"><i class="fa-solid fa-vault"></i></div>
+    <div>
+      <div class="metric-value">UGX {{ "{:,.0f}".format(total_revenue) }}</div>
+      <div class="metric-label">Total revenue</div>
+    </div>
+  </div>
+</div>
+
+<!-- PERMIT EXPIRY ALERTS: Proactive monitoring -->
+{% if expiring_soon %}
+<div class="alert-card expiry-alert">
+  <div class="expiry-alert-header">
+    <i class="fa-solid fa-triangle-exclamation"></i>
+    <strong>Permit Expiry Alert</strong>
+    <!-- Count of vendors needing renewal -->
+    <span class="expiry-count">{{ expiring_soon|length }} vendor(s) expiring within 30 days</span>
+  </div>
+  <table class="expiry-table">
+    <thead>
+      <tr>
+        <th>Vendor</th>
+        <th>Stall</th>
+        <th>Permit Expires</th>
+        <th>Days Left</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in expiring_soon %}
+      <tr>
+        <td><a href="{{ url_for('vendor_detail', vendor_id=item.vendor.id) }}">{{ item.vendor.full_name }}</a></td>
+        <td>{{ item.vendor.stall_number or '—' }}</td>
+        <td>{{ item.permit_end }}</td>
+        <td>
+          <!-- Conditional styling based on urgency -->
+          {% if item.days_left == 0 %}
+            <span class="badge badge-danger">Today</span>
+          {% elif item.days_left <= 7 %}
+            <span class="badge badge-danger">{{ item.days_left }}d</span>
+          {% else %}
+            <span class="badge badge-warn">{{ item.days_left }}d</span>
+          {% endif %}
+        </td>
+        <td><a href="{{ url_for('edit_vendor', vendor_id=item.vendor.id) }}" class="btn-sm">Renew</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
+<!-- AUDIT ALERT: Appears when cash transactions need verification by Finance -->
+{% if current_user.role in ['admin', 'finance_officer'] and unverified_count > 0 %}
+<div class="alert-card" style="background: #e0f2f1; border-left: 4px solid #00695c; margin-bottom: 20px;">
+  <div class="expiry-alert-header" style="color: #004d40;">
+    <i class="fa-solid fa-file-shield"></i>
+    <strong>Verification Required</strong>
+    <span class="expiry-count">{{ unverified_count }} transaction(s) pending Finance approval</span>
+    <a href="{{ url_for('receipts') }}" class="btn-sm" style="background:#00695c; color:white; margin-left:auto;">Verify Now</a>
+  </div>
+</div>
+{% endif %}
+
+<!-- ACTIVITY LOGS -->
+<div class="two-col">
+
+  <!-- RECENT TRANSACTIONS -->
+  <div class="card">
+    <div class="card-header">
+      <span>Recent receipts</span>
+      <a href="{{ url_for('receipts') }}" class="card-link">View all →</a>
+    </div>
+    <table class="data-table">
+      <thead><tr><th>Receipt #</th><th>Vendor</th><th>Amount</th><th>Date</th></tr></thead>
+      <tbody>
+        {% for r in recent_receipts %}
+        <tr>
+          <td><code>{{ r.receipt_no }}</code></td>
+          <td>{{ r.vendor_ref.full_name if r.vendor_ref else '—' }}</td>
+          <td>UGX {{ "{:,.0f}".format(r.amount) }}</td>
+          <td>{{ r.date_issued[:10] }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4" class="empty">No receipts yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- REGISTRATION LOG & ANALYTICS -->
+  <div>
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-header">
+        <span>Recently registered</span>
+        <a href="{{ url_for('vendors') }}" class="card-link">View all →</a>
+      </div>
+      <table class="data-table">
+        <thead><tr><th>ID</th><th>Name</th><th>Status</th></tr></thead>
+        <tbody>
+          {% for v in recent_vendors %}
+          <tr>
+            <td><code>{{ v.vendor_id }}</code></td>
+            <td><a href="{{ url_for('vendor_detail', vendor_id=v.id) }}">{{ v.full_name }}</a></td>
+            <td><span class="badge badge-{{ 'success' if v.status=='Active' else 'warn' if v.status=='Pending' else 'danger' }}">{{ v.status }}</span></td>
+          </tr>
+          {% else %}
+          <tr><td colspan="3" class="empty">No vendors yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- TRADE TYPE DISTRIBUTION: Doughnut Chart -->
+    <div class="card">
+      <div class="card-header"><span>Vendors by trade type</span></div>
+      <div style="padding:16px;">
+        <canvas id="tradeChart" height="160"></canvas>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- DATA SERIALIZATION: Converting Python objects to JSON for JavaScript use -->
+<script id="trade-labels" type="application/json">{{ trade_data | map(attribute=0) | list | tojson | safe }}</script>
+<script id="trade-values" type="application/json">{{ trade_data | map(attribute=1) | list | tojson | safe }}</script>
+{% endblock %}
+
+{% block scripts %}
+<!-- Chart.js Library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>
+  (function() {
+    // Read the data embedded in the HTML script tags above
+    const labelsEl = document.getElementById('trade-labels');
+    const valuesEl = document.getElementById('trade-values');
+    if (!labelsEl || !valuesEl) return;
+
+    const tradeLabels = JSON.parse(labelsEl.textContent);
+    const tradeValues = JSON.parse(valuesEl.textContent);
+    const ctx = document.getElementById('tradeChart');
+    if (ctx) {
+      // Initialize the doughnut chart
+      new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: tradeLabels,
+          datasets: [{ 
+            data: tradeValues, 
+            backgroundColor: ['#3B8BD4','#1D9E75','#D85A30','#888780','#9B59B6'] 
+          }]
+        },
+        options: { 
+          plugins: { legend: { position: 'bottom' } }, 
+          cutout: '60%',
+          responsive: true,
+          maintainAspectRatio: false
+        }
+      });
+    }
+  })();
+</script>
+{% endblock %}
+

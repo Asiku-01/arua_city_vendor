@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block title %}Fines Library{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h2>Fines & Violations</h2>
+  <div class="header-actions">
+    {% if current_user.role in ['admin', 'field_officer'] %}
+    <a href="{{ url_for('issue_fine') }}" class="btn-primary">
+      <i class="fa-solid fa-gavel"></i> Issue Fine
+    </a>
+    {% endif %}
+  </div>
+</div>
+
+<div class="card">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Vendor Name</th>
+        <th>Violation / Reason</th>
+        <th>Penalty Amount</th>
+        <th>Date Issued</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for f in fines %}
+      <tr>
+        <td><code>FIN-{{ "%04d"|format(f.id) }}</code></td>
+        <td>
+          <a href="{{ url_for('vendor_detail', vendor_id=f.vendor_ref.id) }}">
+            {{ f.vendor_ref.full_name }}
+          </a>
+        </td>
+        <td>{{ f.reason }}</td>
+        <td>UGX {{ "{:,.0f}".format(f.amount) }}</td>
+        <td>{{ f.date_issued[:16] }}</td>
+        <td>
+          <span class="badge badge-{{ 'success' if f.status=='Paid' else 'danger' }}">
+            {{ f.status }}
+          </span>
+        </td>
+        <td>
+          {% if f.status == 'Unpaid' %}
+            <form method="POST" action="{{ url_for('pay_fine', fine_id=f.id) }}" style="display:inline;" onsubmit="return confirm('Mark this fine as Paid and generate a receipt?');">
+              <button type="submit" class="btn-success">Pay Penalty</button>
+            </form>
+          {% else %}
+            <!-- Receipt logic could be linked here theoretically -->
+            <span style="color:#aaa;">Settled</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="7" class="empty">No fines have been recorded.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

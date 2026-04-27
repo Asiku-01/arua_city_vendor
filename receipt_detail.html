@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}Receipt {{ receipt.receipt_no }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h2>
+    <a href="{{ url_for('receipts') }}" class="back-link">← Receipts</a>
+    {{ receipt.receipt_no }}
+  </h2>
+  <div style="display:flex;gap:8px;">
+    <a href="{{ url_for('receipt_pdf', receipt_id=receipt.id) }}" class="btn-secondary">
+      <i class="fa-solid fa-file-pdf"></i> Download PDF
+    </a>
+    <button onclick="window.print()" class="btn-secondary">
+      <i class="fa-solid fa-print"></i> Print receipt
+    </button>
+  </div>
+</div>
+
+<div class="receipt-center">
+  <div class="receipt-paper large">
+    <div style="text-align: center; margin-bottom: 10px;">
+      <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" style="width: 80px; height: 80px; object-fit: contain;">
+    </div>
+    <div class="rp-org">Arua City Council</div>
+    <div class="rp-sub">Arua, Uganda</div>
+    <div class="rp-divider"></div>
+    <div class="rp-row"><span>Receipt no.</span><code>{{ receipt.receipt_no }}</code></div>
+    <div class="rp-row"><span>Date</span><span>{{ receipt.date_issued[:10] }}</span></div>
+    <div class="rp-row"><span>Time</span><span>{{ receipt.date_issued[11:16] if receipt.date_issued|length > 10 else '—' }}</span></div>
+    <div class="rp-divider dashed"></div>
+    <div class="rp-row"><span>Vendor name</span><span>{{ vendor.full_name if vendor else '—' }}</span></div>
+    <div class="rp-row"><span>Vendor ID</span><code>{{ vendor.vendor_id if vendor else '—' }}</code></div>
+    <div class="rp-row"><span>Street / zone</span><span>{{ vendor.street if vendor else '—' }}</span></div>
+    <div class="rp-row"><span>Fee type</span><span>{{ receipt.fee_type }}</span></div>
+    {% if receipt.notes %}
+    <div class="rp-row"><span>Notes</span><span>{{ receipt.notes }}</span></div>
+    {% endif %}
+    <div class="rp-row"><span>Issued by</span><span>{{ receipt.issued_by }}</span></div>
+    <div class="rp-divider dashed"></div>
+    <div class="rp-total"><span>TOTAL PAID</span><span>UGX {{ "{:,.0f}".format(receipt.amount) }}</span></div>
+    <div class="rp-divider"></div>
+    <div class="rp-footer">
+      <span class="badge badge-{{ 'success' if receipt.status=='Paid' else 'danger' }}">{{ receipt.status }}</span>
+      <div class="rp-barcode" style="margin-top:10px;">
+        <img src="data:image/png;base64,{{ qr_b64 }}" alt="Verification QR Code" style="width: 100px; height: 100px;">
+      </div>
+      <div style="font-size:11px;margin-top:4px;color:#999;">{{ receipt.receipt_no }} — scan to verify</div>
+    </div>
+  </div>
+</div>
+{% endblock %}

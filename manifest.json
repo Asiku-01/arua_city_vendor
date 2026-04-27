@@ -1,0 +1,17 @@
+{
+  "name": "Arua Vendor Management System",
+  "short_name": "Arua VendorMS",
+  "description": "Official Street Vendor Authority portal for Arua City Council.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#2B5EAD",
+  "theme_color": "#2B5EAD",
+  "icons": [
+    {
+      "src": "/static/img/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

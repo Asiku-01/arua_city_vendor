@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+<!-- signup.html: Public registration portal for new users -->
+{% block title %}Sign Up{% endblock %}
+
+{% block auth_content %}
+<div class="login-page">
+  <div class="login-card">
+    <div class="login-header">
+      <i class="fa-solid fa-user-plus login-icon"></i>
+      <h1>Create Account</h1>
+      <p>Join the Arua Street Vendor Authority</p>
+    </div>
+
+    <!-- Feedback alerts (e.g. "Username already exists") -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('signup') }}">
+      <!-- User Identification -->
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" placeholder="Choose a username" required autofocus>
+      </div>
+      <div class="form-group">
+        <label for="email">Email address</label>
+        <input type="email" id="email" name="email" placeholder="email@arua.go.ug" required>
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" placeholder="Min 6 characters" required>
+      </div>
+      
+      <!-- Role Assignment: Important for system permissions -->
+      <div class="form-group">
+        <label for="role">Requested Role</label>
+        <select id="role" name="role">
+          <option value="field_officer">Field Officer</option>
+          <option value="finance_officer">Finance Officer</option>
+          <option value="vendor">Vendor</option>
+        </select>
+      </div>
+      
+      <button type="submit" class="btn-primary btn-full">
+        <i class="fa-solid fa-user-check"></i> Sign Up
+      </button>
+    </form>
+
+    <p class="login-hint">Already have an account? <a href="{{ url_for('login') }}">Log In</a></p>
+  </div>
+</div>
+{% endblock %}
+

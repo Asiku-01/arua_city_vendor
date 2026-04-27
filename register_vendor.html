@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% block title %}Register Vendor{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h2><a href="{{ url_for('vendors') }}" class="back-link">← Vendors</a> Register new vendor</h2>
+</div>
+
+<div class="card form-card">
+  <div class="card-header"><span>Vendor information</span></div>
+  <form method="POST" action="{{ url_for('register_vendor') }}">
+    <div class="form-grid">
+
+      <div class="form-group">
+        <label for="full_name">Full name <span class="required">*</span></label>
+        <input type="text" id="full_name" name="full_name" placeholder="e.g. Amina Kato" required>
+      </div>
+
+      <div class="form-group">
+        <label for="phone">Phone number <span class="required">*</span></label>
+        <input type="tel" id="phone" name="phone" placeholder="+256 7XX XXX XXX" required>
+      </div>
+
+      <div class="form-group">
+        <label for="nin">National ID (NIN)</label>
+        <input type="text" id="nin" name="nin" placeholder="e.g. CM9000000XXXX">
+      </div>
+
+      <div class="form-group">
+        <label for="dob">Date of birth</label>
+        <input type="date" id="dob" name="dob">
+      </div>
+
+      <div class="form-group">
+        <label for="street">Street / zone <span class="required">*</span></label>
+        <select id="street" name="street" required>
+          <option value="">— select street —</option>
+          {% for s in streets %}
+          <option value="{{ s.name }}">{{ s.name }}</option>
+          {% endfor %}
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="trade_type">Trade type <span class="required">*</span></label>
+        <select id="trade_type" name="trade_type" required>
+          <option value="">— select type —</option>
+          <option>Food &amp; Produce</option>
+          <option>Clothing</option>
+          <option>Electronics</option>
+          <option>Crafts &amp; Art</option>
+          <option>Services</option>
+          <option>Other</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="stall_number">Stall / pitch number</label>
+        <input type="text" id="stall_number" name="stall_number" placeholder="e.g. A-07">
+      </div>
+
+      <div class="form-group">
+        <label for="permit_start">Permit start date</label>
+        <input type="date" id="permit_start" name="permit_start">
+      </div>
+
+      <div class="form-group">
+        <label for="permit_end">Permit end date</label>
+        <input type="date" id="permit_end" name="permit_end">
+      </div>
+
+      <div class="form-group form-full">
+        <label for="notes">Notes / remarks</label>
+        <textarea id="notes" name="notes" rows="3"
+          placeholder="Any additional info about the vendor or their location…"></textarea>
+      </div>
+
+    </div>
+
+    <div class="form-actions">
+      <a href="{{ url_for('vendors') }}" class="btn-ghost">Cancel</a>
+      <button type="reset" class="btn-ghost">Clear</button>
+      <button type="submit" class="btn-primary">
+        <i class="fa-solid fa-floppy-disk"></i> Save vendor
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}

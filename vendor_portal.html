@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% block title %}Vendor Portal{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Welcome, {{ vendor.full_name }}</h1>
+    <p class="text-muted">Vendor ID: <code>{{ vendor.vendor_id }}</code></p>
+  </div>
+  <div class="header-actions">
+    <a href="{{ url_for('vendor_permit_pdf', vendor_id=vendor.id) }}" class="btn-primary">
+      <i class="fa-solid fa-id-card"></i> Download My permit
+    </a>
+  </div>
+</div>
+
+<!-- Vendor Metrics -->
+<div class="metrics-grid">
+  <div class="metric-card">
+    <div class="metric-icon" style="background:#e3f2fd; color:#2196f3;"><i class="fa-solid fa-money-bill-trend-up"></i></div>
+    <div class="metric-info">
+      <span class="metric-label">Total Paid Fees</span>
+      <h3 class="metric-value">UGX {{ "{:,.0f}".format(total_paid) }}</h3>
+    </div>
+  </div>
+  
+  <div class="metric-card">
+    <div class="metric-icon" style="background:{{ '#fff3e0' if unpaid_fines_count > 0 else '#e8f5e9' }}; color:{{ '#fb8c00' if unpaid_fines_count > 0 else '#4caf50' }};">
+      <i class="fa-solid fa-gavel"></i>
+    </div>
+    <div class="metric-info">
+      <span class="metric-label">Unpaid Fines</span>
+      <h3 class="metric-value">{{ unpaid_fines_count }} (UGX {{ "{:,.0f}".format(unpaid_fines_total) }})</h3>
+    </div>
+  </div>
+
+  <div class="metric-card">
+    <div class="metric-icon" style="background:#fce4ec; color:#e91e63;"><i class="fa-solid fa-clock"></i></div>
+    <div class="metric-info">
+      <span class="metric-label">Permit Valid Until</span>
+      <h3 class="metric-value">{{ vendor.permit_end or 'N/A' }}</h3>
+    </div>
+  </div>
+</div>
+
+<div class="dashboard-grid">
+  <!-- Recent Receipts -->
+  <div class="card">
+    <div class="card-header">
+      <h3><i class="fa-solid fa-receipt"></i> Recent Payments</h3>
+      <a href="{{ url_for('receipts') }}" class="view-all">View History</a>
+    </div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Receipt No.</th>
+          <th>Fee Type</th>
+          <th>Amount</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in receipts %}
+        <tr>
+          <td><a href="{{ url_for('receipt_detail', receipt_id=r.id) }}"><code>{{ r.receipt_no }}</code></a></td>
+          <td>{{ r.fee_type }}</td>
+          <td>UGX {{ "{:,.0f}".format(r.amount) }}</td>
+          <td>{{ r.date_issued[:10] }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4" class="empty">No payments found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Recent Fines -->
+  <div class="card">
+    <div class="card-header">
+      <h3><i class="fa-solid fa-triangle-exclamation"></i> Recent Violations</h3>
+      <a href="{{ url_for('fines') }}" class="view-all">See All Fines</a>
+    </div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Fine ID</th>
+          <th>Reason</th>
+          <th>Amount</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for f in fines %}
+        <tr>
+          <td><code>FIN-{{ "%04d"|format(f.id) }}</code></td>
+          <td>{{ f.reason }}</td>
+          <td>UGX {{ "{:,.0f}".format(f.amount) }}</td>
+          <td><span class="badge badge-{{ 'success' if f.status=='Paid' else 'danger' }}">{{ f.status }}</span></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4" class="empty">No violations found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

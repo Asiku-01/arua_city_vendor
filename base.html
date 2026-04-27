@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<!-- base.html: The master template that provides the layout for all other pages -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- PWA Meta Tags -->
+  <meta name="theme-color" content="#2B5EAD">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/icon-512.png') }}">
+  <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+
+  <title>{% block title %}Vendor Management{% endblock %} — Arua</title>
+  <!-- Load the main design stylesheet -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <!-- Load FontAwesome for icons like gauges, users, and receipts -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+{% if current_user.is_authenticated %}
+<!-- SIDEBAR NAVIGATION: Only visible to logged-in users -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <!-- Arua City Council Branding Logo -->
+    <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" style="width: 40px; height: 40px; object-fit: contain; border-radius: 5px; margin-right: 10px;">
+    <span>Arua VendorMS</span>
+  </div>
+  <nav class="sidebar-nav">
+    <!-- Dashboard Link: Accessible to all users -->
+    <a href="{{ url_for('dashboard') }}" class="nav-link {% if request.endpoint=='dashboard' %}active{% endif %}">
+      <i class="fa-solid fa-gauge"></i> Dashboard
+    </a>
+    
+    <!-- ADMIN & STAFF ROUTES -->
+    {% if current_user.role in ['admin', 'field_officer', 'finance_officer'] %}
+    <a href="{{ url_for('fee_tracker') }}" class="nav-link {% if request.endpoint=='fee_tracker' %}active{% endif %}">
+      <i class="fa-solid fa-calendar-check"></i> Fee Tracker
+    </a>
+    <a href="{{ url_for('vendors') }}" class="nav-link {% if 'vendor' in request.endpoint and request.endpoint != 'register_vendor' %}active{% endif %}">
+      <i class="fa-solid fa-users"></i> Vendors
+    </a>
+    {% endif %}
+
+    <!-- RECEIPTS & FINES: Logic in app.py handles what each role sees -->
+    <a href="{{ url_for('receipts') }}" class="nav-link {% if 'receipt' in request.endpoint %}active{% endif %}">
+      <i class="fa-solid fa-receipt"></i> Receipts
+    </a>
+    <a href="{{ url_for('fines') }}" class="nav-link {% if request.endpoint=='fines' %}active{% endif %}">
+      <i class="fa-solid fa-gavel"></i> Fines
+    </a>
+
+    <!-- FINANCIAL REPORTING: Limited to oversight roles -->
+    {% if current_user.role in ['admin', 'finance_officer'] %}
+    <a href="{{ url_for('reports') }}" class="nav-link {% if request.endpoint=='reports' %}active{% endif %}">
+      <i class="fa-solid fa-chart-line"></i> Reports
+    </a>
+    {% endif %}
+
+    <!-- DATA ENTRY: Registration restricted to field staff/admin -->
+    {% if current_user.role in ['admin', 'field_officer'] %}
+    <a href="{{ url_for('register_vendor') }}" class="nav-link {% if request.endpoint=='register_vendor' %}active{% endif %}">
+      <i class="fa-solid fa-user-plus"></i> Register
+    </a>
+    {% endif %}
+
+    <!-- SYSTEM ADMIN: Only for root admin -->
+    {% if current_user.role == 'admin' %}
+    <a href="{{ url_for('manage_users') }}" class="nav-link {% if request.endpoint=='manage_users' %}active{% endif %}">
+      <i class="fa-solid fa-user-gear"></i> Manage Users
+    </a>
+    {% endif %}
+  </nav>
+
+  <!-- User Profile & Logout -->
+  <div class="sidebar-footer">
+    <span><i class="fa-solid fa-circle-user"></i> {{ current_user.username }}</span>
+    <a href="{{ url_for('logout') }}" class="logout-link" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></a>
+  </div>
+</aside>
+
+<!-- MAIN CONTENT AREA -->
+<main class="main-content">
+  <!-- FLASH MESSAGES: Displays success/error alerts from Flask -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-container">
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">
+            {{ message }}
+            <button onclick="this.parentElement.remove()" class="close-btn">×</button>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <!-- CONTENT BLOCK: Where specific page content will be injected -->
+  {% block content %}{% endblock %}
+</main>
+
+{% else %}
+  <!-- AUTHENTICATION BLOCK: Used for Login and Signup pages -->
+  {% block auth_content %}{% endblock %}
+{% endif %}
+
+<!-- JavaScript Utilities -->
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script>
+  // Automatic dismissal of alert messages after 5 seconds
+  document.querySelectorAll('.alert').forEach(alert => {
+    setTimeout(() => {
+      alert.style.opacity = '0';
+      alert.style.transition = 'opacity 0.5s ease';
+      setTimeout(() => alert.remove(), 500);
+    }, 5000);
+  });
+
+  // Service Worker Registration for PWA (Installable App)
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/static/sw.js').then(reg => {
+        console.log('SW Registered', reg);
+      }).catch(err => {
+        console.log('SW Registration Failed', err);
+      });
+    });
+  }
+</script>
+<!-- Hook for page-specific scripts -->
+{% block scripts %}{% endblock %}
+</body>
+</html>
+

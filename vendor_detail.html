@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% block title %}{{ vendor.full_name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h2>
+    <a href="{{ url_for('vendors') }}" class="back-link">← Vendors</a>
+    {{ vendor.full_name }}
+  </h2>
+  <div class="header-actions">
+    {% if vendor.phone %}
+    <form method="POST" action="{{ url_for('send_sms_reminder', vendor_id=vendor.id) }}"
+          style="display:inline;"
+          onsubmit="return confirm('Send SMS reminder to {{ vendor.phone }}?');">
+      <button type="submit" class="btn-ghost">
+        <i class="fa-solid fa-comment-sms"></i> SMS reminder
+      </button>
+    </form>
+    {% endif %}
+    <a href="{{ url_for('vendor_permit_pdf', vendor_id=vendor.id) }}" class="btn-secondary" target="_blank">
+      <i class="fa-solid fa-id-card"></i> Download Permit
+    </a>
+    <a href="{{ url_for('edit_vendor', vendor_id=vendor.id) }}" class="btn-secondary">
+      <i class="fa-solid fa-pen"></i> Edit
+    </a>
+    <a href="{{ url_for('issue_receipt') }}?vendor_id={{ vendor.id }}" class="btn-primary">
+      <i class="fa-solid fa-receipt"></i> Issue receipt
+    </a>
+    {% if current_user.role in ['admin', 'field_officer'] %}
+    <a href="{{ url_for('issue_fine') }}?vendor_id={{ vendor.id }}" class="btn-secondary" style="border-color:#ef4444; color:#ef4444;">
+      <i class="fa-solid fa-gavel"></i> Issue Fine
+    </a>
+    {% endif %}
+  </div>
+</div>
+
+<div class="two-col">
+  <!-- Vendor info card -->
+  <div class="card">
+    <div class="card-header"><span>Vendor profile</span></div>
+    <div class="vendor-profile">
+      <div class="vendor-avatar">{{ vendor.full_name[:2].upper() }}</div>
+      <div class="vendor-name">{{ vendor.full_name }}</div>
+      <span class="badge badge-{{ 'success' if vendor.status=='Active' else 'warn' if vendor.status=='Pending' else 'danger' }}">
+        {{ vendor.status }}
+      </span>
+    </div>
+    <div class="info-table">
+      <div class="info-row"><span class="info-label">Vendor ID</span><code>{{ vendor.vendor_id }}</code></div>
+      <div class="info-row"><span class="info-label">Phone</span>{{ vendor.phone }}</div>
+      <div class="info-row"><span class="info-label">National ID</span>{{ vendor.nin or '—' }}</div>
+      <div class="info-row"><span class="info-label">Date of birth</span>{{ vendor.dob or '—' }}</div>
+      <div class="info-row"><span class="info-label">Street / zone</span>{{ vendor.street }}</div>
+      <div class="info-row"><span class="info-label">Trade type</span>{{ vendor.trade_type }}</div>
+      <div class="info-row"><span class="info-label">Stall number</span>{{ vendor.stall_number or '—' }}</div>
+      <div class="info-row"><span class="info-label">Permit start</span>{{ vendor.permit_start or '—' }}</div>
+      <div class="info-row"><span class="info-label">Permit end</span>{{ vendor.permit_end or '—' }}</div>
+      {% if vendor.notes %}
+      <div class="info-row"><span class="info-label">Notes</span>{{ vendor.notes }}</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Receipt history -->
+  <div class="card">
+    <div class="card-header">
+      <span>Receipt history ({{ receipts|length }})</span>
+    </div>
+    <table class="data-table">
+      <thead><tr><th>Receipt #</th><th>Fee type</th><th>Amount</th><th>Date</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for r in receipts %}
+        <tr>
+          <td><a href="{{ url_for('receipt_detail', receipt_id=r.id) }}"><code>{{ r.receipt_no }}</code></a></td>
+          <td>{{ r.fee_type }}</td>
+          <td>UGX {{ "{:,.0f}".format(r.amount) }}</td>
+          <td>{{ r.date_issued[:10] }}</td>
+          <td><span class="badge badge-{{ 'success' if r.status=='Paid' else 'danger' }}">{{ r.status }}</span></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" class="empty">No receipts issued yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
