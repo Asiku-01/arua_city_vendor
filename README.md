@@ -1,0 +1,1 @@
+# arua_city_vendor
